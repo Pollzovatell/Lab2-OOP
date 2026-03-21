@@ -1,0 +1,44 @@
+import re
+
+class TextProcessor:
+    def __init__(self, text, word_length):
+        self.text = text
+        self.word_length = word_length
+
+    def is_consonant(self, char):
+        vowels = "aeiouаеєиіїоуюяAEIOUАЕЄИІЇОУЮЯ"
+        return char.isalpha() and char not in vowels
+
+    def process_text(self):
+        try:
+            words = re.findall(r'\b\w+\b', self.text)
+
+            result_words = []
+
+            for word in words:
+                if len(word) == self.word_length and self.is_consonant(word[0]):
+                    continue
+                result_words.append(word)
+
+            result_text = " ".join(result_words)
+            return result_text
+
+        except Exception as e:
+            return f"Помилка: {e}"
+
+
+if __name__ == "__main__":
+    try:
+        text = input("Введіть текст: ")
+        length = int(input("Введіть довжину слова: "))
+
+        processor = TextProcessor(text, length)
+        result = processor.process_text()
+
+        print("\nРезультат:")
+        print(result)
+
+    except ValueError:
+        print("Помилка: довжина слова повинна бути числом")
+    except Exception as e:
+        print(f"Невідома помилка: {e}")
