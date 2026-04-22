@@ -1,91 +1,73 @@
-import re
 import unittest
+from lab2 import Text
 
+class TestText(unittest.TestCase):
 
-class TextProcessor:
-    def __init__(self, text, word_length):
-        self.text = text
-        self.word_length = word_length
+    def test_init_valid_string(self):
+        """Тест успішної ініціалізації з правильним типом даних (рядок)"""
+        text_obj = Text("Привіт, світ!")
+        self.assertEqual(text_obj.text, "Привіт, світ!")
 
-    def is_consonant(self, char):
-        vowels = "aeiouаеєиіїоуюяAEIOUАЕЄИІЇОУЮЯ"
-        return char.isalpha() and char not in vowels
+    def test_init_invalid_type(self):
+        """Тест ініціалізації з неправильним типом даних (має викликати TypeError)"""
+        with self.assertRaises(TypeError) as context:
+            Text(12345)
+        self.assertEqual(str(context.exception), "Помилка: Текст повинен бути рядком")
 
-    def process_text(self):
-        try:
-            words = re.findall(r'\b\w+\b', self.text)
+    def test_del_words_invalid_type(self):
+        """Тест передачі неправильного типу для target_length"""
+        text_obj = Text("Якийсь текст")
+        with self.assertRaises(TypeError) as context:
+            text_obj.del_words("3")
+        self.assertEqual(str(context.exception), "Помилка: Довжина слова має бути цілим числом")
 
-            result_words = []
+    def test_del_words_invalid_value(self):
+        """Тест передачі недопустимого значення для target_length (<= 0)"""
+        text_obj = Text("Якийсь текст")
+        with self.assertRaises(ValueError) as context:
+            text_obj.del_words(0)
+        self.assertEqual(str(context.exception), "Помилка: Довжина слова має бути більшою за нуль")
 
-            for word in words:
-                if len(word) == self.word_length and self.is_consonant(word[0]):
-                    continue
-                result_words.append(word)
+        with self.assertRaises(ValueError):
+            text_obj.del_words(-5)
 
-            return " ".join(result_words)
+    def test_del_words_normal_behavior(self):
+        """Тест видалення слів заданої довжини, що починаються на приголосну (приклад з вашого коду)"""
+        text_obj = Text("На вулиці сонячно. Ми сьогодні гуляли в лісі. Кіт бігав")
+        result = text_obj.del_words(3)
+        expected = "На вулиці сонячно. Ми сьогодні гуляли в лісі. бігав"
+        self.assertEqual(result, expected)
 
-        except Exception as e:
-            return f"Помилка: {e}"
+    def test_del_words_starts_with_vowel(self):
+        """Тест перевірки того, що слова на голосну не видаляються, навіть якщо довжина збігається"""
+        text_obj = Text("Око моє бачить усе")
+        result = text_obj.del_words(3)
+        self.assertEqual(result, "Око бачить усе")
 
-
-class TestTextProcessor(unittest.TestCase):
-
-    def test_remove_words_consonant(self):
-        text = "Кіт біг по дорозі швидко"
-        processor = TextProcessor(text, 3)
-        result = processor.process_text()
-
-        self.assertEqual(result, "по дорозі швидко")
-
-    def test_keep_vowel_words(self):
-        text = "Іра іде у школу"
-        processor = TextProcessor(text, 3)
-        result = processor.process_text()
-
-        self.assertEqual(result, "Іра іде у школу")
-
-    def test_mixed_case(self):
-        text = "Dog cat apple sky"
-        processor = TextProcessor(text, 3)
-        result = processor.process_text()
-
-        self.assertEqual(result, "apple")
-
-    def test_empty_string(self):
-        processor = TextProcessor("", 3)
-        result = processor.process_text()
+    def test_del_words_with_punctuation(self):
+        """Тест видалення слів разом із прилеглими розділовими знаками"""
+        text_obj = Text("Дім, сад, ліс.")
+        result = text_obj.del_words(3)
         self.assertEqual(result, "")
 
-    def test_no_matches(self):
-        text = "hello world"
-        processor = TextProcessor(text, 10)
-        result = processor.process_text()
+    def test_del_words_english_text(self):
+        """Тест з англійським текстом для перевірки англійських голосних/приголосних"""
+        text_obj = Text("The cat and dog are big")
+        result = text_obj.del_words(3)
+        self.assertEqual(result, "and are")
 
-        self.assertEqual(result, "hello world")
+    def test_del_words_no_matching_words(self):
+        """Тест, коли жодне слово не підпадає під критерії"""
+        text_obj = Text("Тут немає слів з п'яти букв")
+        result = text_obj.del_words(10)
+        self.assertEqual(result, "Тут немає слів з п'яти букв")
+
+    def test_del_words_empty_string(self):
+        """Тест обробки порожнього рядка"""
+        text_obj = Text("")
+        result = text_obj.del_words(4)
+        self.assertEqual(result, "")
 
 
-
-if __name__ == "__main__":
-    print("1 - Запустити програму")
-    print("2 - Запустити тести")
-
-    choice = input("Ваш вибір: ")
-
-    if choice == "1":
-        try:
-            text = input("Введіть текст: ")
-            length = int(input("Введіть довжину слова: "))
-
-            processor = TextProcessor(text, length)
-            result = processor.process_text()
-
-            print("\nРезультат:")
-            print(result)
-
-        except ValueError:
-            print("Помилка: довжина повинна бути числом!")
-        except Exception as e:
-            print(f"Помилка: {e}")
-
-    elif choice == "2":
-        unittest.main(argv=['first-arg-is-ignored'], exit=False)
+if __name__ == '__main__':
+    unittest.main()
