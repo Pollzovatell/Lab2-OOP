@@ -4,12 +4,12 @@ from lab2 import Text
 class TestText(unittest.TestCase):
 
     def test_init_valid_string(self):
-        """Тест успішної ініціалізації з правильним типом даних (рядок)"""
+        """Тест успішної ініціалізації з правильним типом даних"""
         text_obj = Text("Привіт, світ!")
         self.assertEqual(text_obj.text, "Привіт, світ!")
 
     def test_init_invalid_type(self):
-        """Тест ініціалізації з неправильним типом даних (має викликати TypeError)"""
+        """Тест ініціалізації з неправильним типом даних"""
         with self.assertRaises(TypeError) as context:
             Text(12345)
         self.assertEqual(str(context.exception), "Помилка: Текст повинен бути рядком")
@@ -32,7 +32,7 @@ class TestText(unittest.TestCase):
             text_obj.del_words(-5)
 
     def test_del_words_normal_behavior(self):
-        """Тест видалення слів заданої довжини, що починаються на приголосну (приклад з вашого коду)"""
+        """Тест видалення слів заданої довжини, що починаються на приголосну"""
         text_obj = Text("На вулиці сонячно. Ми сьогодні гуляли в лісі. Кіт бігав")
         result = text_obj.del_words(3)
         expected = "На вулиці сонячно. Ми сьогодні гуляли в лісі. бігав"
