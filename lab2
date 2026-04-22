@@ -1,44 +1,51 @@
-import re
+class Text:
+    def __init__(self, text):
+        if not isinstance(text, str):
+            raise TypeError("Помилка: Текст повинен бути рядком")
 
-class TextProcessor:
-    def __init__(self, text, word_length):
         self.text = text
-        self.word_length = word_length
+        self.vowels = "аеєиіїоуюяaeiou"
 
-    def is_consonant(self, char):
-        vowels = "aeiouаеєиіїоуюяAEIOUАЕЄИІЇОУЮЯ"
-        return char.isalpha() and char not in vowels
 
-    def process_text(self):
+    def del_words(self, target_length):
+        if not isinstance(target_length, int):
+            raise TypeError("Помилка: Довжина слова має бути цілим числом")
+
+        if target_length <= 0:
+            raise ValueError("Помилка: Довжина слова має бути більшою за нуль")
+
         try:
-            words = re.findall(r'\b\w+\b', self.text)
-
+            words = self.text.split()
             result_words = []
 
             for word in words:
-                if len(word) == self.word_length and self.is_consonant(word[0]):
+                clean_word = word.strip(".,!?:;")
+                if not clean_word:
+                    result_words.append(word)
                     continue
-                result_words.append(word)
 
-            result_text = " ".join(result_words)
-            return result_text
+                first_letter = clean_word[0].lower()
+                if (first_letter.isalpha() and first_letter not in self.vowels) and (len(clean_word) == target_length):
+                    pass
+                else:
+                    result_words.append(word)
+
+            return " ".join(result_words)
 
         except Exception as e:
-            return f"Помилка: {e}"
+            return f"Сталася внутрішня помилка при обробці тексту: {e}"
 
 
-if __name__ == "__main__":
-    try:
-        text = input("Введіть текст: ")
-        length = int(input("Введіть довжину слова: "))
+try:
+    my_text = Text("На вулиці сонячно. Ми сьогодні гуляли в лісі. Кіт бігав")
+    redacted_text = Text(my_text.del_words(3))
 
-        processor = TextProcessor(text, length)
-        result = processor.process_text()
+    print("Було:", my_text.text)
+    print("Стало:", redacted_text.text)
 
-        print("\nРезультат:")
-        print(result)
-
-    except ValueError:
-        print("Помилка: довжина слова повинна бути числом")
-    except Exception as e:
-        print(f"Невідома помилка: {e}")
+except TypeError as error:
+    print(error)
+except ValueError as error:
+    print(error)
+except Exception as error:
+    print(f"Критична помилка програми: {error}")
